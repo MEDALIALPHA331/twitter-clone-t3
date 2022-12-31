@@ -2,6 +2,7 @@ import { useState } from "react";
 import { trpc } from "../utils/trpc";
 import { object, string } from "zod";
 import Router from "next/router";
+import { useSession } from "next-auth/react";
 
 //Define a Validation Schema for the Tweet using Zod
 export const tweetSchema = object({
@@ -20,29 +21,40 @@ export const tweetId = object({
 
 function CreateTweet() {
   const [tweet, setTweet] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string>();
+  const { data: SessionData } = useSession();
+  //console.log(SessionData);
 
   const mutation = trpc.tweet.create.useMutation();
 
   async function handleSubmitTweet(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    //Client Side validation agaisnt the schema //TODO: Fix it
-    /*
-    try {
-      await tweetSchema.parse(tweet);
-    } catch (e: any) {
-      setError(e.message);
+    //Client Side validation for a Protected action (create tweet)
+    if (SessionData === null) {
+      setError("You must be logged in to tweet");
       return;
     }
-    */
 
+    //Server Side Validation for a Protected action (create tweet)
+    try {
+      await tweetSchema.parseAsync({ content: tweet });
+    } catch (err: any) {
+      setError(err.message);
+      return;
+    }
+
+    //Mutaion & Page Reload to reveal changes
     mutation.mutateAsync({ content: tweet });
     Router.reload();
   }
   return (
     <>
-      {error && JSON.stringify(error)}
+      {error && (
+        <h2 className="text-2x text-red-500">
+          {typeof error === "string" ? error : JSON.stringify(error)}
+        </h2>
+      )}
       <form onSubmit={(e) => handleSubmitTweet(e)}>
         <div className="flex items-center justify-center gap-4 ">
           <label htmlFor="tweet">
@@ -59,17 +71,19 @@ function CreateTweet() {
 
           <button
             className="flex-shrink-0 rounded-md border-[2px] border-violet-500 px-2 py-1"
+            type="submit"
             disabled={mutation.isLoading}
           >
             Tweet
           </button>
-          {mutation.error && (
-            <p className="text-xs text-red-500">
-              Something went wrong! {mutation.error.message}
-            </p>
-          )}
         </div>
+        {mutation.error && (
+          <p className="text-xs text-red-500">
+            Something went wrong! {mutation.error.message}
+          </p>
+        )}
       </form>
+
       <div className="p-6" />
     </>
   );

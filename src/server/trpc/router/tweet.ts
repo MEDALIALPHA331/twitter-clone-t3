@@ -9,7 +9,7 @@ export const tweetRouter = router({
       const { prisma } = ctx;
       const { content } = input;
       const userId = ctx.session.user.id; //this is the user id from the session
-      return prisma.tweet.create({
+      return await prisma.tweet.create({
         data: {
           content,
           author: {
@@ -64,5 +64,9 @@ export const tweetRouter = router({
     */
 
     return user;
+  }),
+
+  deleteAllTweets: protectedProcedure.mutation(async ({ ctx }) => {
+    return await ctx.prisma.tweet.deleteMany();
   }),
 });

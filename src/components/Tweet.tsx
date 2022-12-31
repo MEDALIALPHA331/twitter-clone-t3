@@ -20,7 +20,7 @@ export default function Tweet({ tweet }: { tweet: TweetType }) {
       <section aria-label="tweet information">
         {/*TODO: Some button to expand the tweet into its onw dynamic route, it should be positioned absolute  */}
 
-        <div className="mb-1 flex items-center justify-center gap-4 text-sm">
+        <div className="justify-centergit branch -M main mb-1 flex items-center gap-4 text-sm">
           <span className="flex items-center justify-start gap-1 text-violet-400">
             <UserIcon />
             {username || "user " + tweet.authorId.slice(0, 4) || "user"}

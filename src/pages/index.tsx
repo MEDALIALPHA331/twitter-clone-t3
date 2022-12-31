@@ -4,6 +4,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import CreateTweet from "../components/CreateTweet";
 import Timeline from "../components/Timeline";
 import Image from "next/image";
+import DeleteAllTweets from "../components/DeleteAllTweets";
 
 const Home: NextPage = () => {
   const { data: sessionData } = useSession();
@@ -47,6 +48,8 @@ const Home: NextPage = () => {
             />
           )}
         </nav>
+        <div className="p-4" />
+        <DeleteAllTweets />
         <div className="p-4" />
         <CreateTweet />
         <Timeline />
